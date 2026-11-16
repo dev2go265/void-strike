@@ -3,31 +3,74 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Void Strike — FPS</title>
+<title>Void Strike — 3D FPS</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+<script>
+  // If the CDN fails, fall back to the vendored copy served with the game.
+  window.__threeFailed = function () {
+    if (window.THREE) return;
+    var s = document.createElement('script');
+    s.src = 'three.min.js';
+    document.head.appendChild(s);
+  };
+</script>
 </head>
 <body>
 <main class="wrap">
   <h1 class="title">VOID STRIKE</h1>
-  <p class="tagline">First-person shooter. Clear 5 waves of drones. 2500 points to win.</p>
+  <p class="tagline">Real 3D first-person shooter. Clear 5 waves of drones. 2500 points to win.</p>
   <div class="game-box">
-    <canvas id="game" width="640" height="400" aria-label="Void Strike FPS game"></canvas>
-    <div class="hud" id="hud">
-      <span id="hud-score">Score: 0</span>
-      <span id="hud-wave">Wave: 1</span>
-      <span id="hud-hp">HP: 100</span>
-      <span id="hud-enemies">Drones: 0</span>
-    </div>
+    <canvas id="game" width="1280" height="800" aria-label="Void Strike 3D FPS game"></canvas>
+    <canvas id="minimap" width="150" height="150" aria-label="Minimap"></canvas>
+    <div id="kill-toast"></div>
+    <div id="overlay"></div>
+    <p id="load-error" hidden>Loading the 3D engine… if this stays here, check your connection and reload.</p>
     <button id="fire-btn" type="button">FIRE</button>
   </div>
+  <div class="hud" id="hud">
+    <span id="hud-score">Score: 0</span>
+    <span id="hud-wave">Wave: 1/5</span>
+    <span id="hud-best">Best: 0</span>
+    <span id="hud-enemies">Drones: 0</span>
+  </div>
+  <div class="hpbar"><div id="hp-fill"></div><span id="hud-hp">HP: 100</span></div>
+
+  <section class="settings">
+    <h2>Settings</h2>
+    <label>Look Sensitivity <span id="sens-val">1.0x</span>
+      <input id="sens" type="range" min="0.5" max="3" step="0.1" value="1">
+    </label>
+    <label>Move Speed <span id="speed-val">1.0x</span>
+      <input id="speed" type="range" min="0.6" max="1.6" step="0.1" value="1">
+    </label>
+    <label>Field of View <span id="fov-val">60°</span>
+      <input id="fov" type="range" min="50" max="90" step="5" value="60">
+    </label>
+    <label class="check"><input id="mute" type="checkbox"> Mute sound</label>
+    <p class="hint">Saved automatically on this device. Sensitivity affects mouse, touch, and arrow-key turning.</p>
+  </section>
+
   <div class="controls">
-    <p><strong>Move:</strong> WASD &nbsp;•&nbsp; <strong>Look:</strong> drag mouse, or Left / Right arrows</p>
+    <p><strong>Move:</strong> WASD or Arrow keys — Up / Down move, Left / Right turn, A / D strafe</p>
+    <p><strong>Look:</strong> drag mouse, or click the game to lock the mouse</p>
     <p><strong>Shoot:</strong> Click / Space / FIRE &nbsp;•&nbsp; <strong>Pause:</strong> P &nbsp;•&nbsp; <strong>Mute:</strong> M</p>
     <p>Touch: drag left side to move, drag right side to look, tap FIRE to shoot.</p>
     <button id="start-btn" type="button">Play</button>
   </div>
-  <p class="foot">A tiny FPS, drawn entirely in code. No downloads, no sign-up.</p>
+  <p class="foot">A tiny 3D FPS, drawn entirely in code with Three.js. No downloads, no sign-up.</p>
 </main>
+<script>
+  // Attach the CDN fallback to the Three.js script tag.
+  (function () {
+    var scripts = document.getElementsByTagName('script');
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src && scripts[i].src.indexOf('three.min.js') >= 0 && scripts[i].src.indexOf('unpkg') >= 0) {
+        scripts[i].onerror = window.__threeFailed;
+      }
+    }
+  })();
+</script>
 <script src="game.js"></script>
 </body>
 </html>
