@@ -116,6 +116,37 @@
     return { dist: 20, side: side };
   }
 
+  // BFS on the grid, 4-connected. Returns [{x, y}, ...] cell centers from the
+  // cell after the start to the target, or null if unreachable.
+  function findPath(sx, sy, tx, ty) {
+    if (sx === tx && sy === ty) return [];
+    var MW = MAP[0].length, MH = MAP.length;
+    var prev = {};
+    prev[sx + ',' + sy] = null;
+    var q = [[sx, sy]];
+    var dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    while (q.length) {
+      var c = q.shift();
+      for (var i = 0; i < 4; i++) {
+        var nx = c[0] + dirs[i][0], ny = c[1] + dirs[i][1];
+        if (nx < 0 || ny < 0 || nx >= MW || ny >= MH) continue;
+        if (MAP[ny].charAt(nx) === '1') continue;
+        var k = nx + ',' + ny;
+        if (k in prev) continue;
+        prev[k] = c;
+        if (nx === tx && ny === ty) {
+          var path = [];
+          var cur = [nx, ny];
+          while (cur) { path.unshift({ x: cur[0] + 0.5, y: cur[1] + 0.5 }); cur = prev[cur[0] + ',' + cur[1]]; }
+          path.shift(); // drop the start cell
+          return path;
+        }
+        q.push([nx, ny]);
+      }
+    }
+    return null;
+  }
+
   function spawnEnemy() {
     var s = SPAWNS[Math.floor(Math.random() * SPAWNS.length)];
     // Don't spawn right on top of the player.
@@ -127,6 +158,9 @@
       hp: 100,
       speed: 1.05 + wave * 0.14 + Math.random() * 0.25,
       attack: 0,
+      path: null,
+      pathT: 0,
+      wp: 0,
       wobble: Math.random() * Math.PI * 2
     });
   }
@@ -251,9 +285,27 @@
       var dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
       e.wobble += dt * 3;
       if (dist > 1.05) {
+        // Re-path every 0.5s (the player moves) or when the path runs out.
+        e.pathT -= dt;
+        if (!e.path || e.pathT <= 0 || e.wp >= e.path.length) {
+          e.path = findPath(Math.floor(e.x), Math.floor(e.y), Math.floor(player.x), Math.floor(player.y));
+          e.wp = 0;
+          e.pathT = 0.5;
+        }
+        var tx, ty;
+        if (e.path && e.path.length) {
+          var node = e.path[Math.min(e.wp, e.path.length - 1)];
+          tx = node.x; ty = node.y;
+          if (Math.abs(e.x - tx) < 0.15 && Math.abs(e.y - ty) < 0.15) e.wp++;
+        } else {
+          // No path (or already there): fall back to a straight chase.
+          tx = player.x; ty = player.y;
+        }
+        var pdx = tx - e.x, pdy = ty - e.y;
+        var pd = Math.sqrt(pdx * pdx + pdy * pdy) || 0.001;
         var step = e.speed * dt;
-        var nx = e.x + (dx / dist) * step + Math.cos(e.wobble) * 0.15 * dt;
-        var ny = e.y + (dy / dist) * step + Math.sin(e.wobble) * 0.15 * dt;
+        var nx = e.x + (pdx / pd) * step;
+        var ny = e.y + (pdy / pd) * step;
         if (!isWall(nx, e.y)) e.x = nx;
         if (!isWall(e.x, ny)) e.y = ny;
       }
