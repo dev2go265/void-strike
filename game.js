@@ -54,6 +54,7 @@
   var toSpawn = 0;
   var spawnTimer = 0;
   var betweenWaves = 0;
+  var waveChime = false;
   var shootCooldown = 0;
   var shootFlash = 0;
   var hitMarker = 0;
@@ -167,6 +168,7 @@
 
   function startWave(n) {
     wave = n;
+    waveChime = false;
     toSpawn = WAVE_COUNTS[n - 1];
     spawnTimer = 0.5;
     updateHud();
@@ -274,7 +276,7 @@
     } else if (enemies.length === 0) {
       if (wave >= 5) { endGame(true); return; }
       betweenWaves += dt;
-      if (betweenWaves > 0.1 && betweenWaves < 0.2) beep(660, 0.15, 'sine', 0.07);
+      if (betweenWaves > 0.1 && !waveChime) { waveChime = true; beep(660, 0.15, 'sine', 0.07); }
       if (betweenWaves >= 3) { betweenWaves = 0; startWave(wave + 1); }
     }
 
