@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Void Strike — FPS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wrap">
+  <h1 class="title">VOID STRIKE</h1>
+  <p class="tagline">First-person shooter. Clear 5 waves of drones. 2500 points to win.</p>
+  <div class="game-box">
+    <canvas id="game" width="640" height="400" aria-label="Void Strike FPS game"></canvas>
+    <div class="hud" id="hud">
+      <span id="hud-score">Score: 0</span>
+      <span id="hud-wave">Wave: 1</span>
+      <span id="hud-hp">HP: 100</span>
+      <span id="hud-enemies">Drones: 0</span>
+    </div>
+    <button id="fire-btn" type="button">FIRE</button>
+  </div>
+  <div class="controls">
+    <p><strong>Move:</strong> WASD &nbsp;•&nbsp; <strong>Look:</strong> drag mouse, or Left / Right arrows</p>
+    <p><strong>Shoot:</strong> Click / Space / FIRE &nbsp;•&nbsp; <strong>Pause:</strong> P &nbsp;•&nbsp; <strong>Mute:</strong> M</p>
+    <p>Touch: drag left side to move, drag right side to look, tap FIRE to shoot.</p>
+    <button id="start-btn" type="button">Play</button>
+  </div>
+  <p class="foot">A tiny FPS, drawn entirely in code. No downloads, no sign-up.</p>
+</main>
+<script src="game.js"></script>
+</body>
+</html>
